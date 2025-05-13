@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Running/Falling Grid</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { margin: 0; background: black; }
+    svg { display: block; margin: auto; }
+  </style>
+</head>
+<body>
+  <svg id="led"></svg>
+
+  <script>
+    const rows = 32, cols = 24;
+    const size = 20;
+    const spacing = 50;
+    const minR = 2;
+    const maxR = 10;
+    const duration = 200;
+
+    const svg = d3.select("#led")
+      .attr("width", cols * spacing)
+      .attr("height", rows * spacing);
+
+    const data = d3.range(rows * cols).map(i => ({ id: i, on: false }));
+
+    const circles = svg.selectAll("circle")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("cx", d => (d.id % cols) * spacing + spacing / 2)
+      .attr("cy", d => Math.floor(d.id / cols) * spacing + spacing / 2)
+      .attr("r", minR)
+      .attr("fill", "red");
+
+    function randomFrame() {
+      return data.map(d => ({
+        ...d,
+        on: Math.random() < 0.05
+      }));
+    }
+
+    function update(frameData) {
+      circles.data(frameData, d => d.id)
+        .transition()
+        .duration(duration)
+        .attr("r", d => d.on ? maxR : minR);
+    }
+
+    function loop() {
+      const newFrame = randomFrame();
+      update(newFrame);
+      setTimeout(loop, duration);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
